@@ -1,8 +1,8 @@
 import os
 import jinja2
 import asyncio
-import aiofiles
 import datetime
+import aioredis
 import aiohttp.web
 import aiohttp_jinja2
 from pathlib import Path
@@ -10,8 +10,10 @@ from pathlib import Path
 
 HOST = os.getenv('HOST', '0.0.0.0')
 PORT = int(os.getenv('PORT', 8080))
+redis_host = os.getenv('redis_host', '172.17.0.2')
 mu = os.getenv('mu', 0)
 sigma = os.getenv('sigma', 1)
+redis_key = "RDS_KEY"
 here = Path(__file__).resolve().parent
 
 
@@ -21,17 +23,18 @@ async def web_handle(request):
 
 
 async def web_soc_handle(request):
+    app = request.app
     ws = aiohttp.web.WebSocketResponse()
     await ws.prepare(request)
     while True:
-        file = await aiofiles.open('error.txt', 'r')
-        res = await file.read()
-        await ws.send_json({'error_msg': res})
+
+        res = await app['redis'].get(redis_key, encoding='utf-8')
+        await ws.send_json({'error_msg': str(res)})
         await asyncio.sleep(1)
 
 
 async def websocket_handler(request):
-    app = request
+    app = request.app
     ws = aiohttp.web.WebSocketResponse(heartbeat=5, autoping=True)
     await ws.prepare(request)
 
@@ -48,22 +51,28 @@ async def websocket_handler(request):
                 error_str = f"current timestamp - {datetime.datetime.now()},  number - {number}," \
                             f" and its sequence number - {json_data['sequence_number']}"
                 print(error_str)
-                file = await aiofiles.open('error.txt', 'a')
-                await file.write(error_str+'\n')
-                await file.close()
+
+                privios_res = await app['redis'].get(redis_key, encoding='utf-8')
+
+                if not privios_res:
+                    privios_res = ""
+
+                await app['redis'].set(redis_key, f"{privios_res} |||||| {error_str}")
 
             await ws.send_str('Answer!')
 
 
-def main():
-    loop = asyncio.get_event_loop()
-    app = aiohttp.web.Application(loop=loop)
+async def main(loop_):
+    app = aiohttp.web.Application(loop=loop_)
     app.router.add_route('GET', '/', web_handle)
     app.router.add_route('GET', '/brouser', web_soc_handle)
     app.router.add_route('GET', '/ws', websocket_handler)
+    redis = await aioredis.create_redis_pool(f'redis://{redis_host}', loop=loop_)
+    app['redis'] = redis
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(str(here)))
-    aiohttp.web.run_app(app, host=HOST, port=PORT)
+    return app
 
 
 if __name__ == '__main__':
-    main()
+    loop = asyncio.get_event_loop()
+    aiohttp.web.run_app(main(loop))
