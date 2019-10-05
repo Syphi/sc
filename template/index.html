@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    Errors - <span id="error_msg"></span>
+</body>
+<script>
+    window.onload = function () {
+      const ws = new WebSocket('ws://0.0.0.0:8080/brouser');
+      ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            let span = document.getElementById('error_msg');
+            span.innerHTML = data.error_msg;
+      };
+    };
+</script>
+</html>
