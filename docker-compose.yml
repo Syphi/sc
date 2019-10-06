@@ -11,7 +11,7 @@ services:
     environment:
       - redis_host = redis
       - redis_key = RDS_KEY
-      -  mu = 0
+      - mu = 0
       - sigma = 1
 
   aiows-client:
