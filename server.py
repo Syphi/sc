@@ -8,8 +8,6 @@ import aiohttp_jinja2
 from pathlib import Path
 
 
-HOST = os.getenv('HOST', '0.0.0.0')
-PORT = int(os.getenv('PORT', 8080))
 redis_host = os.getenv('redis_host', '172.17.0.2')
 mu = os.getenv('mu', 0)
 sigma = os.getenv('sigma', 1)

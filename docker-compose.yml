@@ -1,0 +1,32 @@
+version: '2.3'
+services:
+  aiows-server:
+    build: .
+    volumes:
+      - .:/src
+    working_dir: /src
+    command: python server.py
+    ports:
+      - "8080:8080"
+    environment:
+      - redis_host = redis
+      - redis_key = RDS_KEY
+      -  mu = 0
+      - sigma = 1
+
+  aiows-client:
+    build: .
+    volumes:
+      - .:/src
+    working_dir: /src
+    command: python client.py
+    depends_on:
+      - aiows-server
+    environment:
+      - HOST=aiows-server
+      - PORT = 8080
+      - mu = 0
+      - sigma = 1
+
+  redis:
+    image: "redis:alpine"
