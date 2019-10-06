@@ -30,3 +30,5 @@ services:
 
   redis:
     image: "redis:alpine"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
