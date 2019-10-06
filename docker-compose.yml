@@ -9,10 +9,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - redis_host = redis
-      - redis_key = RDS_KEY
-      - mu = 0
-      - sigma = 1
+      - redis_host=redis
+      - redis_key=RDS_KEY
+      - mu=0
+      - sigma=1
 
   aiows-client:
     build: .
@@ -24,9 +24,9 @@ services:
       - aiows-server
     environment:
       - HOST=aiows-server
-      - PORT = 8080
-      - mu = 0
-      - sigma = 1
+      - PORT=8080
+      - mu=0
+      - sigma=1
 
   redis:
     image: "redis:alpine"

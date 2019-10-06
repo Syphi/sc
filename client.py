@@ -6,8 +6,8 @@ import aiohttp
 
 HOST = os.getenv('HOST', '0.0.0.0')
 PORT = int(os.getenv('PORT', 8080))
-mu = os.getenv('mu', 0)
-sigma = os.getenv('sigma', 1)
+mu = int(os.getenv('mu', 0))
+sigma = int(os.getenv('sigma', 1))
 URL = f'http://{HOST}:{PORT}/ws'
 
 

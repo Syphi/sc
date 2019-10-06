@@ -9,8 +9,8 @@ from pathlib import Path
 
 
 redis_host = os.getenv('redis_host', '172.17.0.2')
-mu = os.getenv('mu', 0)
-sigma = os.getenv('sigma', 1)
+mu = int(os.getenv('mu', 0))
+sigma = int(os.getenv('sigma', 1))
 redis_key = "RDS_KEY"
 here = Path(__file__).resolve().parent
 
